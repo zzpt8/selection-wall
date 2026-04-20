@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雨衣妹妹选品矩阵 - 四川好物展示</title>
+    <style>
+        /* 延续小程序 app.wxss 的配色方案 */
+        :root {
+            --primary-color: #D2B48C; /* 暖黄主题色 */
+            --bg-color: #F5F2E9;      /* 温暖背景色 */
+            --card-bg: #FFFFFF;
+            --text-main: #333333;
+            --price-red: #e4393c;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        /* 顶部标题栏 */
+        .header {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+
+        /* 搜索模拟 */
+        .search-section { padding: 12px 15px; }
+        .search-input {
+            background: white;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        /* 轮播图区域 */
+        .banner {
+            margin: 0 15px 15px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #eaddca 0%, #d2b48c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            background-image: url('https://picsum.photos/750/350?random=101');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* 分类选项卡 */
+        .tabs {
+            display: flex;
+            padding: 10px 15px;
+            gap: 10px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .tab-item {
+            padding: 8px 18px;
+            background: #fff;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        .tab-item.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 商品双列布局 */
+        .goods-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 10px 15px;
+        }
+        .goods-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        
+        .goods-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            background: #f8f8f8;
+        }
+        .goods-info { padding: 12px; flex: 1; }
+        .goods-title {
+            font-size: 14px;
+            font-weight: 500;
+            height: 40px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .goods-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .goods-price {
+            color: var(--price-red);
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .goods-price::before { content: "¥"; font-size: 12px; margin-right: 1px; }
+        .goods-sales { color: #999; font-size: 11px; }
+
+        /* 落地页联系按钮 */
+        .footer-action {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            background: #333;
+            color: white;
+            height: 56px;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-decoration: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">雨衣妹妹 · 选品矩阵</div>
+
+    <div class="container">
+        <div class="search-section">
+            <div class="search-input">🔍 搜索四川原产地好物...</div>
+        </div>
+
+        <div class="banner">原产地直采 · 严选品质</div>
+
+        <div class="tabs">
+            <div class="tab-item active">全部</div>
+            <div class="tab-item">滋补参茸</div>
+            <div class="tab-item">四川特产</div>
+            <div class="tab-item">家居好物</div>
+        </div>
+
+        <div class="goods-grid" id="goodsList"></div>
+    </div>
+
+    <a href="tel:13800000000" class="footer-action">
+        📞 联系选品经理 (合作/拿样)
+    </a>
+
+    <script>
+        // 基于你项目 mock 数据的四川好物矩阵
+        const products = [
+            { name: "高山特级藏红花 (10g装)", price: 29.9, sales: 1258, img: "https://picsum.photos/400/400?random=10" },
+            { name: "岷县精选当归片", price: 48.0, sales: 960, img: "https://picsum.photos/400/400?random=11" },
+            { name: "雨衣妹妹严选·加厚纯棉洁面巾", price: 100.0, sales: 5800, img: "https://picsum.photos/400/400?random=12" },
+            { name: "古法生晒·四川农家腊肉", price: 68.0, sales: 420, img: "https://picsum.photos/400/400?random=13" },
+            { name: "丹棱果冻橙 (5斤礼盒装)", price: 39.9, sales: 2100, img: "https://picsum.photos/400/400?random=14" },
+            { name: "青川黑木耳 (干货精选)", price: 55.0, sales: 630, img: "https://picsum.photos/400/400?random=15" }
+        ];
+
+        const listContainer = document.getElementById('goodsList');
+
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'goods-card';
+            card.innerHTML = `
+                <img src="${p.img}" class="goods-img">
+                <div class="goods-info">
+                    <div class="goods-title">${p.name}</div>
+                    <div class="goods-bottom">
+                        <span class="goods-price">${p.price}</span>
+                        <span class="goods-sales">已选 ${p.sales}</span>
+                    </div>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>
